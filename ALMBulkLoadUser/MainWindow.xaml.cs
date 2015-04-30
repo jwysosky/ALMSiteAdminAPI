@@ -16,6 +16,7 @@ using SACLIENTLib;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
+using System.Runtime.InteropServices;
 
 
 namespace ALM_Add_User
@@ -121,31 +122,45 @@ namespace ALM_Add_User
         private void btnAddUsers_Click(object sender, RoutedEventArgs e)
         {
             //Open the file and add users and groups to list
-            var reader = new StreamReader(File.OpenRead(txtFileLocation.Text));
-            List<string> users = new List<string>();
-            List<string> groups = new List<string>();
-            while (!reader.EndOfStream)
+            try
             {
-                var line = reader.ReadLine();
-                var values = line.Split(',');
+                var reader = new StreamReader(File.OpenRead(txtFileLocation.Text));
+                List<string> users = new List<string>();
+                List<string> groups = new List<string>();
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    var values = line.Split(',');
 
-                users.Add(values[0]);
-                groups.Add(values[1]);
+                    users.Add(values[0]);
+                    groups.Add(values[1]);
+                }
+
+                //for each user add them to the project and respective group
+                int i = 0;
+                foreach (string user in users)
+                {
+                    try
+                    {
+                        sapi.CreateUserEx(user, "", "", "", "", "", "");
+                        sapi.AddUsersToProject(drpDomain.SelectedValue.ToString(), drpProject.SelectedValue.ToString(), user);
+                        sapi.AddUsersToGroup(drpDomain.SelectedValue.ToString(), drpProject.SelectedValue.ToString(), groups.ElementAt(i), user);
+                    }
+                    catch (COMException)
+                    {
+                        
+                    }
+                    i++;
+                }
+                reader.Close();
+
             }
-
-            //for each user add them to the project and respective group
-            int i = 0;
-            foreach (string user in users)
+            catch (Exception)
             {
-                sapi.CreateUserEx(user, "", "", "", "", "", "");
-                sapi.AddUsersToProject(drpDomain.SelectedValue.ToString(), drpProject.SelectedValue.ToString(), user);
-                sapi.AddUsersToGroup(drpDomain.SelectedValue.ToString(), drpProject.SelectedValue.ToString(), groups.ElementAt(i), user);
-
-                i++;
+                MessageBox.Show("Could not open file at " + txtFileLocation.Text);
             }
-            reader.Close();
-
-            lblUploadStatus.Content = "Users Uploaded!";
+       
+            lblUploadStatus.Content = "Uploading Task Complete!";
         }
     }
 }
