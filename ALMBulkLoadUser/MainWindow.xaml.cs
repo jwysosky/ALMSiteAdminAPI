@@ -155,7 +155,9 @@ namespace ALM_Add_User
                         sapi.CreateUserEx(user, "", "", "", "", "", "");
                     }                     
                     catch (COMException){
-                        Debug.WriteLine("Error importing user, " + user + " may already exist in the System");
+                        using (StreamWriter w = File.AppendText(GetDirectory() + "log.txt")){
+                            w.WriteLine("Error importing user, " + user + " may already exist in the System");
+                        }
                     }
 
                     try
@@ -164,7 +166,10 @@ namespace ALM_Add_User
                     }
                     catch (COMException)
                     {
-                        Debug.WriteLine("Error adding user " + user + " to " + drpProject.SelectedValue.ToString());
+                        using (StreamWriter w = File.AppendText(GetDirectory() + "log.txt"))
+                        {
+                            w.WriteLine("Error adding user " + user + " to " + drpProject.SelectedValue.ToString());
+                        }
                     }
 
                     try
@@ -173,7 +178,10 @@ namespace ALM_Add_User
                     }
                     catch (COMException)
                     {
-                        Debug.WriteLine("Error adding " + user + " to " + groups.ElementAt(i));
+                        using (StreamWriter w = File.AppendText(GetDirectory() + "log.txt"))
+                        {
+                            w.WriteLine("Error adding " + user + " to " + groups.ElementAt(i));
+                        }
                     }
                     i++;
                 }
@@ -184,6 +192,14 @@ namespace ALM_Add_User
             {
                 MessageBox.Show("Could not open file at " + txtFileLocation.Text + "\nMake sure the file exists and you have access\nto the directory.");
             }           
+        }
+
+        public string GetDirectory()
+        {
+            string directory;
+            directory = txtFileLocation.Text.ToString();
+            directory = directory.Remove(directory.LastIndexOf("\\") + 1);
+            return directory;
         }
     }
 }
