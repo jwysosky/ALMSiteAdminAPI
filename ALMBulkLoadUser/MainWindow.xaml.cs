@@ -151,6 +151,7 @@ namespace ALM_Add_User
                 int i = 0;
                 foreach (string user in users)
                 {
+                    //Try to create the user, log error if any
                     try{
                         sapi.CreateUserEx(user, "", "", "", "", "", "");
                     }                     
@@ -160,6 +161,7 @@ namespace ALM_Add_User
                         }
                     }
 
+                    //Try to add user to project, log error if any
                     try
                     {
                         sapi.AddUsersToProject(drpDomain.SelectedValue.ToString(), drpProject.SelectedValue.ToString(), user);
@@ -172,6 +174,7 @@ namespace ALM_Add_User
                         }
                     }
 
+                    //try to add user to the group, log error if any
                     try
                     {
                         sapi.AddUsersToGroup(drpDomain.SelectedValue.ToString(), drpProject.SelectedValue.ToString(), groups.ElementAt(i), user);
