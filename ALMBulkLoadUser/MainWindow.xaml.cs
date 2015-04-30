@@ -17,6 +17,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.Linq;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 
 namespace ALM_Add_User
@@ -52,7 +53,16 @@ namespace ALM_Add_User
         private void btnLogin_Click(object sender, RoutedEventArgs e)
         {
             //Login and get all domains in XML format
-            sapi.Login("http://usman-smappvw04.sncorp.smith-nephew.com:8080/qcbin", txtUsername.Text, txtPassword.Password);
+            try
+            {
+                sapi.Login("http://usman-smappvw04.sncorp.smith-nephew.com:8080/qcbin", txtUsername.Text, txtPassword.Password);
+            }
+            catch (COMException)
+            {
+                MessageBox.Show("Login Failed. Check Username and Password!");
+                return;
+            }
+            
             string xmlDomains = sapi.GetAllDomains();
             XDocument xml = XDocument.Parse(xmlDomains);
             IEnumerable<XElement> allDomains = xml.Root.Elements("TDXItem").Elements("DOMAIN_NAME");
@@ -121,6 +131,7 @@ namespace ALM_Add_User
 
         private void btnAddUsers_Click(object sender, RoutedEventArgs e)
         {
+            lblUploadStatus.Content = "";
             //Open the file and add users and groups to list
             try
             {
@@ -140,27 +151,39 @@ namespace ALM_Add_User
                 int i = 0;
                 foreach (string user in users)
                 {
+                    try{
+                        sapi.CreateUserEx(user, "", "", "", "", "", "");
+                    }                     
+                    catch (COMException){
+                        Debug.WriteLine("Error importing user, " + user + " may already exist in the System");
+                    }
+
                     try
                     {
-                        sapi.CreateUserEx(user, "", "", "", "", "", "");
                         sapi.AddUsersToProject(drpDomain.SelectedValue.ToString(), drpProject.SelectedValue.ToString(), user);
+                    }
+                    catch (COMException)
+                    {
+                        Debug.WriteLine("Error adding user " + user + " to " + drpProject.SelectedValue.ToString());
+                    }
+
+                    try
+                    {
                         sapi.AddUsersToGroup(drpDomain.SelectedValue.ToString(), drpProject.SelectedValue.ToString(), groups.ElementAt(i), user);
                     }
                     catch (COMException)
                     {
-                        
+                        Debug.WriteLine("Error adding " + user + " to " + groups.ElementAt(i));
                     }
                     i++;
                 }
                 reader.Close();
-
+                lblUploadStatus.Content = "Uploading Task Complete!";
             }
             catch (Exception)
             {
-                MessageBox.Show("Could not open file at " + txtFileLocation.Text);
-            }
-       
-            lblUploadStatus.Content = "Uploading Task Complete!";
+                MessageBox.Show("Could not open file at " + txtFileLocation.Text + "\nMake sure the file exists and you have access\nto the directory.");
+            }           
         }
     }
 }
