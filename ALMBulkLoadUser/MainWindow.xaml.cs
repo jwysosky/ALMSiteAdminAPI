@@ -80,6 +80,7 @@ namespace ALM_Add_User
             drpProject.IsEnabled = true;
             txtFileLocation.IsEnabled = true;
             btnBrowse.IsEnabled = true;
+            btnClear.IsEnabled = true;
             lblLoginStatus.Content = "Logged in as " + txtUsername.Text;
 
             //disable login fields
