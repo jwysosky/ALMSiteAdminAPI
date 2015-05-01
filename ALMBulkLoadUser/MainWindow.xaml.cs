@@ -214,8 +214,7 @@ namespace ALM_Add_User
         public string GetDirectory()
         {
             //gets the directory of the user file
-            string directory;
-            directory = txtFileLocation.Text.ToString();
+            string directory = txtFileLocation.Text.ToString();
             directory = directory.Remove(directory.LastIndexOf("\\") + 1);
             return directory;
         }
