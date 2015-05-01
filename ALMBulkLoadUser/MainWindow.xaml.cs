@@ -193,6 +193,8 @@ namespace ALM_Add_User
                     i++;
                 }
                 reader.Close();
+
+                //notify user if error occured, otherwise show task complete
                 if (errorOccured)
                 {
                     lblUploadStatus.Content = "Error Detected, Check log file.";
