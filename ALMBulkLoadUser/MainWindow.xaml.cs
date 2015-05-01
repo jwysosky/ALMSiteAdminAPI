@@ -149,6 +149,7 @@ namespace ALM_Add_User
                 }
 
                 //for each user add them to the project and respective group
+                bool errorOccured = false;
                 int i = 0;
                 foreach (string user in users)
                 {
@@ -158,7 +159,7 @@ namespace ALM_Add_User
                     }                     
                     catch (COMException){
                         using (StreamWriter w = File.AppendText(GetDirectory() + "log.txt")){
-                            w.WriteLine("Error importing user, " + user + " may already exist in the System");
+                            w.WriteLine("Warning: " + user + " may already exist in the System");
                         }
                     }
 
@@ -172,6 +173,7 @@ namespace ALM_Add_User
                         using (StreamWriter w = File.AppendText(GetDirectory() + "log.txt"))
                         {
                             w.WriteLine("Error adding user " + user + " to " + drpProject.SelectedValue.ToString());
+                            errorOccured = true;
                         }
                     }
 
@@ -185,12 +187,21 @@ namespace ALM_Add_User
                         using (StreamWriter w = File.AppendText(GetDirectory() + "log.txt"))
                         {
                             w.WriteLine("Error adding " + user + " to " + groups.ElementAt(i));
+                            errorOccured = true;
                         }
                     }
                     i++;
                 }
                 reader.Close();
-                lblUploadStatus.Content = "Uploading Task Complete!";
+                if (errorOccured)
+                {
+                    lblUploadStatus.Content = "Error Detected, Check log file.";
+                }
+                else
+                {
+                    lblUploadStatus.Content = "Uploading Task Complete!";
+                }
+                
             }
             catch (Exception)
             {
@@ -200,6 +211,7 @@ namespace ALM_Add_User
 
         public string GetDirectory()
         {
+            //gets the directory of the user file
             string directory;
             directory = txtFileLocation.Text.ToString();
             directory = directory.Remove(directory.LastIndexOf("\\") + 1);
