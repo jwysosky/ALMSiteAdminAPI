@@ -27,10 +27,11 @@ namespace ALM_Add_User
     /// </summary>
     public partial class MainWindow : Window
     {
+        private SAapi sapi = new SAapi();
+
         public MainWindow()
         {
             InitializeComponent();
-            SAapi sapi = new SAapi();
         }
 
         private void btnBrowse_Click(object sender, RoutedEventArgs e)
